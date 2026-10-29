@@ -106,6 +106,38 @@ def world():
                 path.goto(x + 10, y + 10)
                 path.dot(2, 'white')
 
+def chase(point, course):
+    """Elige un camino válido para acercar el fantasma a Pacman."""
+    speed = abs(course)
+    options = [
+        vector(speed, 0),
+        vector(-speed, 0),
+        vector(0, speed),
+        vector(0, -speed),
+    ]
+
+    # Conserva las direcciones que permiten avanzar sin tocar paredes.
+    available = []
+    for option in options:
+        if valid(point + option):
+            available.append(option)
+
+    best_distance = None
+    for option in available:
+        reverse = option.x == -course.x and option.y == -course.y
+
+        # Evita regresar, salvo cuando es la única salida.
+        if len(available) > 1 and reverse:
+            continue
+
+        distance = abs(pacman - (point + option))
+        if best_distance is None or distance < best_distance:
+            best_distance = distance
+            plan = option
+
+    if best_distance is not None:
+        course.x = plan.x
+        course.y = plan.y
 
 def move():
     """Move pacman and all ghosts."""
